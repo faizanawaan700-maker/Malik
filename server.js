@@ -124,6 +124,31 @@ app.get("/experience", requireAccess, (req, res) => {
   res.sendFile(path.join(publicDir, "experience.html"));
 });
 
+app.post("/send-wish", requireAccess, (req, res) => {
+  const submittedWish = req.body.wish;
+  if (typeof submittedWish !== "string") {
+    return res.redirect(303, "/experience?wish=invalid#make-a-wish");
+  }
+
+  const wish = submittedWish.trim();
+  if (!wish || wish.length > 300) {
+    return res.redirect(303, "/experience?wish=invalid#make-a-wish");
+  }
+
+  const configuredNumber = (process.env.WHATSAPP_NUMBER || "").trim();
+  if (!/^\+?[0-9][0-9\s().-]*$/.test(configuredNumber)) {
+    return res.redirect(303, "/experience?wish=unavailable#make-a-wish");
+  }
+
+  const recipient = configuredNumber.replace(/\D/g, "");
+  if (!/^[1-9]\d{7,14}$/.test(recipient)) {
+    return res.redirect(303, "/experience?wish=unavailable#make-a-wish");
+  }
+
+  const whatsappUrl = `https://wa.me/${recipient}?text=${encodeURIComponent(wish)}`;
+  return res.redirect(303, whatsappUrl);
+});
+
 app.post("/close", requireAccess, (req, res, next) => {
   req.session.destroy((err) => {
     if (err) return next(err);

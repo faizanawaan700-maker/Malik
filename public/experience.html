@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#170f18">
   <title>For Zahra — A Birthday Experience</title>
-  <link rel="stylesheet" href="/assets/styles.css">
+  <link rel="stylesheet" href="/assets/styles.css?v=20261104-golden-reveal-final">
 </head>
 <body class="experience-body">
   <div id="intro" class="intro-screen">
@@ -30,10 +30,28 @@
       </div>
       <div class="portrait-frame">
         <div class="portrait-inner">
-          <img data-photo-src="/media/zahra.jpg" alt="A special portrait">
-          <div class="portrait-placeholder"><span>✧</span><small>YOUR PHOTO</small><em>Place zahra.jpg<br>in the media folder</em></div>
+          <button id="portraitReveal" class="portrait-reveal" type="button" data-photo-src="/assets/222330.jpg" aria-label="A Special Surprise — Tap to Reveal" aria-expanded="false">
+            <span class="portrait-cover" aria-hidden="true">
+              <span class="portrait-cover-seal">✦</span>
+              <span class="portrait-cover-kicker">A BIRTHDAY SURPRISE</span>
+              <span class="portrait-cover-title">A Special Surprise</span>
+              <span class="portrait-cover-prompt">Tap to Reveal <span>↗</span></span>
+              <span class="portrait-cover-flourish">✧　✦　✧</span>
+            </span>
+            <img id="portraitImage" class="portrait-image" alt="Zahra" hidden>
+          </button>
         </div>
+        <span id="portraitRevealStatus" class="sr-only" role="status" aria-live="polite"></span>
         <span class="frame-caption">THE MOMENT IS YOURS</span>
+      </div>
+      <div class="hero-love-note" aria-label="A loving birthday message">
+        <span class="love-balloon love-balloon-left" aria-hidden="true"></span>
+        <div class="love-note-card">
+          <span class="love-note-heart" aria-hidden="true">♡</span>
+          <p class="love-note-message">I love you 💕<br><br>You are truly special, and I hope you always feel loved, valued, and cared for. May your life always be filled with happiness, peace, and beautiful moments. Always keep that beautiful smile. You deserve all the love and happiness in the world. ❤️</p>
+          <span class="love-note-flourish" aria-hidden="true">✦　✧　✦</span>
+        </div>
+        <span class="love-balloon love-balloon-right" aria-hidden="true"></span>
       </div>
       <div class="hero-bottom-note">MADE TO MAKE YOU SMILE <span>✦</span></div>
     </header>
@@ -60,7 +78,7 @@
       </div>
     </section>
 
-    <section class="cake-section section-pad">
+    <section id="make-a-wish" class="cake-section section-pad">
       <div class="section-number">02 / MAKE A WISH</div>
       <p class="eyebrow">A LITTLE BIRTHDAY MAGIC</p>
       <h2>One wish. <em>Endless possibilities.</em></h2>
@@ -71,6 +89,15 @@
       </div>
       <p id="wish-hint" class="soft-note">Tap each flame to make a wish.</p>
       <button id="wishButton" class="outline-button">MAKE A WISH ✦</button>
+      <form id="wishForm" class="wish-form" action="/send-wish" method="post">
+        <label for="wishMessage">Write your birthday wish</label>
+        <textarea id="wishMessage" name="wish" maxlength="300" rows="4" placeholder="A few heartfelt words..." required aria-describedby="wishCounter wishStatus"></textarea>
+        <div class="wish-form-meta">
+          <span id="wishStatus" class="wish-status" role="status" aria-live="polite"></span>
+          <span id="wishCounter" class="wish-counter">0 / 300</span>
+        </div>
+        <button id="sendWishButton" class="gold-button wish-send-button" type="submit">SEND MY WISH</button>
+      </form>
     </section>
 
     <section class="letter-section section-pad">
@@ -94,6 +121,6 @@
     </section>
     <footer class="footer">A SMALL CELEBRATION OF A WONDERFUL PERSON <span>✧</span> 2026</footer>
   </div>
-  <script src="/assets/app.js" defer></script>
+  <script src="/assets/app.js?v=20261104-golden-reveal" defer></script>
 </body>
 </html>
