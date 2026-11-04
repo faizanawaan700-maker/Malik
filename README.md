@@ -19,7 +19,9 @@
    npm start
    ```
 
-Open `http://localhost:3000`. In production, set `NODE_ENV=production` and serve the site over HTTPS so the session cookie is marked `Secure`. If the app is behind a reverse proxy, set `TRUST_PROXY_HOPS` to the exact number of trusted proxies; leave it unset otherwise.
+Open `http://localhost:3000`. In production, serve the site over HTTPS so the session cookie is marked `Secure`. Vercel's `VERCEL=1` environment automatically enables its proxy trust and secure cookies. For other reverse proxies, set `TRUST_PROXY_HOPS` to the exact number of trusted proxies; leave it unset otherwise.
+
+The session is a signed, stateless cookie containing only the authorization flag. It works across serverless instances and does not require Redis, a database, or another session-storage provider. The cookie is signed, not encrypted; do not add secrets to the session. On Vercel, add `ACCESS_PASSWORD`, `SESSION_SECRET` (at least 32 random characters), and optionally `WHATSAPP_NUMBER` in the project's Environment Variables settings. Rotating `SESSION_SECRET` invalidates existing sessions.
 
 ## Access protection
 

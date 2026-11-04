@@ -1,7 +1,7 @@
 require("dotenv").config();
 
 const express = require("express");
-const session = require("express-session");
+const cookieSession = require("cookie-session");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const crypto = require("crypto");
@@ -13,22 +13,21 @@ const ACCESS_PASSWORD = process.env.ACCESS_PASSWORD || "";
 const SESSION_SECRET = process.env.SESSION_SECRET || "";
 
 if (!ACCESS_PASSWORD || ACCESS_PASSWORD.startsWith("replace-this")) {
-  console.error("SETUP REQUIRED: Add your private password to the .env file.");
-  process.exit(1);
+  throw new Error("SETUP REQUIRED: Configure ACCESS_PASSWORD in the environment.");
 }
 if (SESSION_SECRET.length < 32 || SESSION_SECRET.startsWith("replace-this")) {
-  console.error("SETUP REQUIRED: Add a random SESSION_SECRET of at least 32 characters to the .env file.");
-  process.exit(1);
+  throw new Error("SETUP REQUIRED: Configure SESSION_SECRET with at least 32 characters.");
 }
 
 app.disable("x-powered-by");
 if (process.env.TRUST_PROXY_HOPS) {
   const trustProxyHops = Number(process.env.TRUST_PROXY_HOPS);
   if (!Number.isInteger(trustProxyHops) || trustProxyHops < 1) {
-    console.error("CONFIGURATION ERROR: TRUST_PROXY_HOPS must be a positive integer.");
-    process.exit(1);
+    throw new Error("CONFIGURATION ERROR: TRUST_PROXY_HOPS must be a positive integer.");
   }
   app.set("trust proxy", trustProxyHops);
+} else if (process.env.VERCEL === "1") {
+  app.set("trust proxy", 1);
 }
 app.use(helmet({
   contentSecurityPolicy: {
@@ -40,6 +39,7 @@ app.use(helmet({
       imgSrc: ["'self'", "data:"],
       mediaSrc: ["'self'"],
       connectSrc: ["'self'"],
+      formAction: ["'self'", "https://wa.me", "https://api.whatsapp.com"],
       frameAncestors: ["'none'"],
       objectSrc: ["'none'"],
       upgradeInsecureRequests: null
@@ -48,17 +48,14 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false
 }));
 app.use(express.urlencoded({ extended: false, limit: "10kb" }));
-app.use(session({
+app.use(cookieSession({
   name: "zahra_private_session",
-  secret: SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    maxAge: 4 * 60 * 60 * 1000
-  }
+  keys: [SESSION_SECRET],
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production" || process.env.VERCEL === "1",
+  sameSite: "strict",
+  maxAge: 4 * 60 * 60 * 1000,
+  path: "/"
 }));
 
 const unlockLimiter = rateLimit({
@@ -109,14 +106,8 @@ app.post("/unlock", unlockLimiter, (req, res, next) => {
   if (!safeEqual(submitted, ACCESS_PASSWORD)) {
     return res.redirect("/?error=1");
   }
-  req.session.regenerate((err) => {
-    if (err) return next(err);
-    req.session.authorized = true;
-    req.session.save((saveErr) => {
-      if (saveErr) return next(saveErr);
-      res.redirect("/experience");
-    });
-  });
+  req.session = { authorized: true };
+  return res.redirect("/experience");
 });
 
 app.get("/experience", requireAccess, (req, res) => {
@@ -149,12 +140,9 @@ app.post("/send-wish", requireAccess, (req, res) => {
   return res.redirect(303, whatsappUrl);
 });
 
-app.post("/close", requireAccess, (req, res, next) => {
-  req.session.destroy((err) => {
-    if (err) return next(err);
-    res.clearCookie("zahra_private_session");
-    res.redirect("/");
-  });
+app.post("/close", requireAccess, (req, res) => {
+  req.session = null;
+  res.redirect("/");
 });
 
 app.use((req, res) => res.status(404).send("This private page could not be found."));
@@ -163,7 +151,11 @@ app.use((err, req, res, next) => {
   res.status(500).send("Something went wrong. Please try again.");
 });
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Zahra Birthday Experience running at http://localhost:${PORT}`);
-  console.log("Keep this terminal open while the private link is in use.");
-});
+if (require.main === module) {
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Zahra Birthday Experience running at http://localhost:${PORT}`);
+    console.log("Keep this terminal open while the private link is in use.");
+  });
+}
+
+module.exports = app;
