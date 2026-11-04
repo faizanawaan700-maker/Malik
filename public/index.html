@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#1a1019">
+  <title>Private Experience</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body class="gate-body">
+  <div class="grain"></div>
+  <div class="gate-orb orb-a"></div><div class="gate-orb orb-b"></div>
+  <main class="gate-shell">
+    <div class="gate-emblem"><span>✦</span></div>
+    <p class="eyebrow">A PRIVATE CELEBRATION</p>
+    <h1 class="gate-title">A little world<br><em>made just for you.</em></h1>
+    <p class="gate-copy">This experience is private and meant for one person only.<br>Enter your access code to continue.</p>
+    <form class="gate-form" action="/unlock" method="post">
+      <label class="sr-only" for="password">Private access code</label>
+      <input id="password" name="password" type="password" placeholder="Enter your access code" autocomplete="current-password" required autofocus>
+      <button type="submit"><span>UNLOCK YOUR EXPERIENCE</span><b>↗</b></button>
+      <p class="gate-error" id="gate-error">That code wasn't quite right. Please try again.</p>
+    </form>
+    <p class="gate-foot"><span>✧</span> PRIVATE ACCESS · CREATED WITH CARE <span>✧</span></p>
+  </main>
+  <script src="/assets/gate.js" defer></script>
+</body>
+</html>
